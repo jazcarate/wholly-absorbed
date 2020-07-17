@@ -3,17 +3,20 @@ help: ## Print documentation
 
 serve: ## Run ghcid and the main
 	nix-shell \
-		--run "ghcid --poll --test :main"
+		--run "script/watch"
 
 build: ## Build the app
 	nix-build release.nix
 
 test: ## Test the app
 	nix-shell \
-		--run "ghcid --poll --command \"cabal repl test\" --test :main"
+		--run "script/watch --command \"cabal repl rapt-test\""
 
 update-deps: ## Update the deps from the .cabal file to default.nix
 	nix-shell \
-		--pure -p cabal2nix --run "cabal2nix ." > default.nix
+		--pure -p cabal2nix --run "cabal2nix ." > rapt.nix
 
-.PHONY: serve serve build test
+drop-db: ## Drop the db
+	rm data/sqlite.db*
+
+.PHONY: serve serve build test update-deps drop-db

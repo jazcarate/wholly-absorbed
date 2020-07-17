@@ -12,37 +12,52 @@ import           Control.Monad.IO.Class         ( liftIO )
 import           Control.Monad.Logger           ( runStderrLoggingT )
 import           Data.String.Conversions        ( cs )
 import           Data.Text                      ( Text )
-import           Database.Persist.Sqlite        ( (==.)
+import           Database.Persist.Sqlite        ( Entity
+                                                , (==.)
                                                 , ConnectionPool
                                                 , createSqlitePool
                                                 , entityVal
-                                                , insert
                                                 , runMigration
                                                 , runSqlPersistMPool
                                                 , runSqlPool
                                                 , selectFirst
+                                                , selectList
+                                                , get
                                                 )
 import           Models
 import           Network.Wai.Handler.Warp      as Warp
                                          hiding ( run )
 import           Servant
 
+
 server :: ConnectionPool -> Server Api
-server pool = userAddH :<|> userGetH :<|> raw
+server pool = getAllItems :<|> getResource :<|> raw
  where
+  getAllItems :: Handler [Text]
+  getAllItems = liftIO $ flip runSqlPersistMPool pool $ do
+    mMapping <- selectList [] []
+    return $ map (itemName . entityVal) mMapping
+
+  getResource :: Text -> Handler Text
+  getResource name = do
+    item <- liftIO $ flip runSqlPersistMPool pool $ do
+      itemE     <- selectFirst [ItemName ==. name] []
+      item      <- maybe (fail "not found") pure itemE
+      resourceE <- get $ itemResource $ entityVal item
+      resource  <- maybe (fail "not found") pure resourceE
+      return $ resourceFilePath resource
+    return item
+    -- case item of
+    --   Just i  -> return i
+    --   Nothing -> throwError $ err404
+    --     { errBody =
+    --       "myfile.txt just isn't there, please leave this server alone."
+    --     }
+    -- where foo e = get $ itemResource $ entityVal e
+    --join x = getEntity  $ itemResource $ entityVal x
+
   raw = serveDirectoryFileServer "static/"
-  userAddH newUser = liftIO $ userAdd newUser
-  userGetH name = liftIO $ userGet name
-  userAdd :: User -> IO (Maybe (Key User))
-  userAdd newUser = flip runSqlPersistMPool pool $ do
-    exists <- selectFirst [UserName ==. (userName newUser)] []
-    case exists of
-      Nothing -> Just <$> insert newUser
-      Just _  -> return Nothing
-  userGet :: Text -> IO (Maybe User)
-  userGet name = flip runSqlPersistMPool pool $ do
-    mUser <- selectFirst [UserName ==. name] []
-    return $ entityVal <$> mUser
+
 
 app :: ConnectionPool -> Application
 app pool = serve api $ server pool

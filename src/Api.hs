@@ -14,8 +14,8 @@ import           Servant.API
 
 -- brittany-disable-next-binding
 type Api
-  = "user" :> ReqBody '[JSON] User :> Post '[JSON] (Maybe (Key User))
-  :<|> "user" :> Capture "name" Text  :> Get  '[JSON] (Maybe User)
+  = "item" :> Get '[JSON] [Text]
+  :<|> "item" :> Capture "name" Text  :> Get  '[JSON] Text
   :<|> Raw
 
 api :: Proxy Api

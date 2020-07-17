@@ -13,22 +13,20 @@
 
 module Models where
 
-import           Data.Aeson
 import           Data.Text
 import           Database.Persist.TH
+import           Data.Time
 
 share
   [mkPersist sqlSettings, mkMigrate "migrateAll"]
   [persistLowerCase|
-User
-  name Text
-  age  Int
+Item
+  name  Text
+  resource  ResourceId
   UniqueName name
   deriving Eq Read Show
+Resource
+  filePath  Text
+  date UTCTime default=CURRENT_TIMESTAMP
+  deriving Eq Read Show
 |]
-
-instance FromJSON User where
-  parseJSON = withObject "User" $ \v -> User <$> v .: "name" <*> v .: "age"
-
-instance ToJSON User where
-  toJSON (User name age) = object ["name" .= name, "age" .= age]

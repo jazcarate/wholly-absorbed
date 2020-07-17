@@ -1,0 +1,16 @@
+cradle:
+    multi:
+      - path: "./static"
+        config:
+          cradle:
+            none:
+      - path: "./"
+        config:
+          cradle:
+            cabal:
+              - path: "./src"
+                component: "lib:rapt"
+              - path: "./exe"
+                component: "exe:rapt"
+              - path: "./test"
+                component: "test:rapt-test"
