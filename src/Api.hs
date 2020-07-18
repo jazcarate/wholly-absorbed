@@ -8,7 +8,6 @@ module Api where
 
 import           Data.Proxy
 import           Data.Text
-import           Models
 import           Servant.API
 
 

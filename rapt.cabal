@@ -30,6 +30,7 @@ library
                     , Api
                     , Models
   build-depends:      aeson
+                    , esqueleto
                     , monad-logger
                     , mtl
                     , persistent

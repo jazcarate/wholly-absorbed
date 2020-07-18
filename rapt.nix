@@ -1,4 +1,4 @@
-{ mkDerivation, aeson, base, hspec, http-client, mockery
+{ mkDerivation, aeson, base, esqueleto, hspec, http-client, mockery
 , monad-logger, mtl, persistent, persistent-sqlite
 , persistent-template, servant, servant-client, servant-server
 , stdenv, string-conversions, text, time, transformers, wai, warp
@@ -11,7 +11,7 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    aeson base monad-logger mtl persistent persistent-sqlite
+    aeson base esqueleto monad-logger mtl persistent persistent-sqlite
     persistent-template servant servant-server string-conversions text
     time transformers wai warp
   ];
